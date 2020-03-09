@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Redirect Controller</title>
+</head>
+
+<body>
+    <script>
+        const urlRedirectController = async () => {
+            // const url = 'https://mysite.com/1314783200?lp=lp1&campaignid=9335178670&adgroupid=97993302201&loc_physicall_ms=9025852&browser=chrome&loc_interest_ms=&matchtype=&network=d&creative=420131040693&keyword=adobe pdf&placement=viewlivenews.co&targetid=kwd-13884590&cpid=d660c411-58a1-4745-a084-dc3e813df2b9&{clickid}';
+            const url = window.location.href;
+            if ( url.split('&browser=')[1] === undefined ) return;
+            const browserKey = url.split('&browser=')[1].split('&')[0];
+            let placementKey = url.split('&placement=')[1].split('&')[0];
+
+            if ( placementKey.indexOf('www.') > -1 ) {
+                placementKey = placementKey.split('www.')[1];
+            }
+            
+            let browser = '';
+            
+            if ( browserKey === 'chrome' || browserKey === 'firefox' ) {
+                browser = browserKey;
+            } else {
+                browser = 'other';
+            }
+
+            let startTime = new Date().getTime();
+            const response = await fetch('https://api.jsonbin.io/b/5e66439961de6c389ee9b70a/latest', {
+                method: 'GET',
+                headers: {
+                    "secret-key": "$2b$10$zCvOCli8rchBM.cQP4.NwOY4m33CCeHYgzyZJPvLwxWPoeNtoQYAy"
+                }
+            });
+
+            const placementObj = await response.json();
+            const placement = placementObj[placementKey] || 'other';
+            const urlExtension = `=&x1=${browser}&x2=${placement}`;
+
+            if ( url.indexOf(urlExtension) === -1) {
+                const finalURL = `${url}=&x1=${browser}&x2=${placement}`;
+                // console.log(finalURL);
+                window.location.href = finalURL;
+            }
+
+        }
+
+        urlRedirectController();
+    </script>
+</body>
+
+</html>
